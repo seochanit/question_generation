@@ -69,7 +69,6 @@ class QGPipeline:
         if not inputs:
             logger.warning("Empty input provided for question generation.")
             return []
-
         
         inputs = self._tokenize(inputs, padding=True, truncation=True)
         
@@ -104,7 +103,6 @@ class QGPipeline:
         
         return sents, answers
     
-    
     def _tokenize(self,
         inputs,
         padding=True,
@@ -112,6 +110,10 @@ class QGPipeline:
         add_special_tokens=True,
         max_length=1024
     ):
+        if not inputs:
+            logger.warning("Empty inputs provided for tokenization.")
+            return None
+        
         inputs = self.tokenizer.batch_encode_plus(
             inputs, 
             max_length=max_length,
@@ -122,24 +124,6 @@ class QGPipeline:
             return_tensors="pt"
         )
         return inputs
-    
-    def _prepare_inputs_for_ans_extraction(self, text):
-        sents = sent_tokenize(text)
-
-        inputs = []
-        for i in range(len(sents)):
-            source_text = "extract answers:"
-            for j, sent in enumerate(sents):
-                if i == j:
-                    sent = "<hl> %s <hl>" % sent
-                source_text = "%s %s" % (source_text, sent)
-                source_text = source_text.strip()
-            
-            if self.model_type == "t5":
-                source_text = source_text + " </s>"
-            inputs.append(source_text)
-
-        return sents, inputs
     
     def _prepare_inputs_for_qg_from_answers_hl(self, sents, answers):
         inputs = []
@@ -179,7 +163,6 @@ class QGPipeline:
             
             examples.append({"answer": answer, "source_text": source_text})
         return examples
-
     
 class MultiTaskQAQGPipeline(QGPipeline):
     def __init__(self, **kwargs):
