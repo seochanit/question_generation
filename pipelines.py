@@ -400,3 +400,17 @@ def pipeline(
         return task_class(model=model, tokenizer=tokenizer, ans_model=ans_model, ans_tokenizer=ans_tokenizer, qg_format=qg_format, use_cuda=use_cuda)
     else:
         return task_class(model=model, tokenizer=tokenizer, ans_model=model, ans_tokenizer=tokenizer, qg_format=qg_format, use_cuda=use_cuda)
+
+# Instantiate tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained("valhalla/t5-small-qg-hl")
+model = AutoModelForSeq2SeqLM.from_pretrained("valhalla/t5-small-qg-hl")
+
+# Instantiate pipeline
+qg_pipeline = QGPipeline(
+    model=model,
+    tokenizer=tokenizer,
+    ans_model=model,
+    ans_tokenizer=tokenizer,
+    qg_format="prepend",
+    use_cuda=False  # Adjust as needed
+)
